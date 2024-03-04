@@ -24,9 +24,9 @@ const LoginPage = () => {
   const onSubmit = handleSubmit(async (data) => {
     try {
       const res = await login(data).unwrap();
-      const user = verifyToken(res.data.accessToken) as TUser;
+      const user = verifyToken((res as any).data.accessToken) as TUser;
 
-      dispatch(setUser({ user: user, token: res.data.accessToken }));
+      dispatch(setUser({ user: user, token: (res as any).data.accessToken }));
       toast.success("Logged in", { id: "login", duration: 2000 });
       router.push("/dashboard");
 
@@ -113,7 +113,7 @@ const LoginPage = () => {
 
               {isError ? (
                 <p className="mt-3 text-red-500 text-sm">
-                  {error?.data?.message}
+                  {(error as any)?.data?.message}
                 </p>
               ) : null}
 

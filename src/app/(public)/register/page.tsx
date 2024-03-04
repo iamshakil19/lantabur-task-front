@@ -28,9 +28,8 @@ const RegisterPage = () => {
 
     try {
       const res = await userRegister(data).unwrap();
-      console.log(res);
 
-      if (res.success) {
+      if ((res as any).success) {
         toast.success("Registration Successful", {
           id: "register",
           duration: 2000,
@@ -136,7 +135,7 @@ const RegisterPage = () => {
 
               {isError ? (
                 <p className="mt-3 text-red-500 text-sm">
-                  {error?.data?.errorSources?.[0]?.message}
+                  {(error as any)?.data?.errorSources?.[0]?.message}
                 </p>
               ) : null}
 

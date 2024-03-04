@@ -1,10 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import React from "react";
 import Navbar from "./components/shared/Navbar";
+import { useAppSelector } from "@/redux/hooks";
+import { useCurrentToken } from "@/redux/features/auth/authSlice";
 
 const HomePage = () => {
-  const dashboardLink = "";
-  const token = null;
+  const token = useAppSelector(useCurrentToken);
 
   return (
     <div>
@@ -20,7 +23,7 @@ const HomePage = () => {
             <div className="flex items-center gap-2 justify-center mt-10">
               {token && (
                 <Link
-                  href={dashboardLink}
+                  href="/dashboard"
                   className="bg-blue-500 py-3 px-5 rounded-md text-white font-semibold duration-300 hover:bg-blue-600"
                 >
                   Go to Dashboard

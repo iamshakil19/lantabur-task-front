@@ -4,7 +4,6 @@ import React from "react";
 const PrivateLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <ProtectedRoute>
-      Private Layout
       {children}
     </ProtectedRoute>
   );

@@ -1,20 +1,23 @@
 "use client";
 
-import { useLoginMutation } from "@/redux/features/auth/authApi";
+import {
+  useLoginMutation,
+  useRegisterMutation,
+} from "@/redux/features/auth/authApi";
 import { TUser, setUser } from "@/redux/features/auth/authSlice";
 import { useAppDispatch } from "@/redux/hooks";
 import { verifyToken } from "@/utils/verifyToken";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-const LoginPage = () => {
+const RegisterPage = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const [login, { isLoading }] = useLoginMutation();
+  const [userRegister, { isLoading, error, isError }] = useRegisterMutation();
   const {
     handleSubmit,
     register,
@@ -23,17 +26,18 @@ const LoginPage = () => {
 
   const onSubmit = handleSubmit(async (data) => {
 
-    const toastId = toast.loading("Logging in");
     try {
-      const res = await login(data).unwrap();
-      const user = verifyToken(res.data.accessToken) as TUser;
+      const res = await userRegister(data).unwrap();
+      console.log(res);
 
-      dispatch(setUser({ user: user, token: res.data.accessToken }));
-      toast.success("Logged in", { id: toastId, duration: 2000 });
-      router.push("/dashboard");
-    } catch (error) {
-      toast.error("Something went wrong", { id: toastId, duration: 2000 });
-    }
+      if (res.success) {
+        toast.success("Registration Successful", {
+          id: "register",
+          duration: 2000,
+        });
+        router.push("/login");
+      }
+    } catch (err) {}
   });
 
   return (
@@ -64,9 +68,26 @@ const LoginPage = () => {
               onSubmit={onSubmit}
             >
               <h1 className="text-3xl text-slate-700 font-extrabold mb-5 flex items-center gap-1">
-                Login to your account
+                Register
               </h1>
 
+              <div className="flex flex-col gap-2 mt-3">
+                <label htmlFor="name">Name</label>
+                <input
+                  type="name"
+                  {...register("name", {
+                    required: "Name is required",
+                  })}
+                  id="name"
+                  placeholder="Enter your name"
+                  className="w-full focus:outline-none focus:ring-2 ring-1 ring-blue-500 rounded-md px-3 py-2.5"
+                />
+                {errors.name && (
+                  <span className="text-red-500 text-sm">
+                    {(errors as any).name.message}
+                  </span>
+                )}
+              </div>
               <div className="flex flex-col gap-2 mt-3">
                 <label htmlFor="email">Email</label>
                 <input
@@ -113,6 +134,12 @@ const LoginPage = () => {
                 )}
               </div>
 
+              {isError ? (
+                <p className="mt-3 text-red-500 text-sm">
+                  {error?.data?.errorSources?.[0]?.message}
+                </p>
+              ) : null}
+
               {isLoading ? (
                 <button
                   className="py-2.5 rounded-md font-semibold w-full text-white mt-6 bg-gradient-to-tr from-blue-500 to-purple-600"
@@ -122,17 +149,17 @@ const LoginPage = () => {
                 </button>
               ) : (
                 <button className="py-2.5 rounded-md font-semibold w-full text-white mt-6 bg-gradient-to-tr from-blue-500 to-purple-600">
-                  Login
+                  Register
                 </button>
               )}
 
               <div className="mt-5">
-                Don't have an account?{" "}
+                Already have an account?{" "}
                 <Link
-                  href={"/register"}
+                  href={"/login"}
                   className="text-purple-600 cursor-pointer"
                 >
-                  Create an account
+                  Login
                 </Link>
               </div>
             </form>
@@ -143,4 +170,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

@@ -1,12 +1,20 @@
 "use client";
 
+import { useLoginMutation } from "@/redux/features/auth/authApi";
+import { TUser, setUser } from "@/redux/features/auth/authSlice";
+import { useAppDispatch } from "@/redux/hooks";
+import { verifyToken } from "@/utils/verifyToken";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 const LoginPage = () => {
-  const isLoading = false;
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
+  const [login, { isLoading }] = useLoginMutation();
   const {
     handleSubmit,
     register,
@@ -14,9 +22,18 @@ const LoginPage = () => {
   } = useForm();
 
   const onSubmit = handleSubmit(async (data) => {
-    // await loginUser({ ...data });
 
-    console.log(data);
+    const toastId = toast.loading("Logging in");
+    try {
+      const res = await login(data).unwrap();
+      const user = verifyToken(res.data.accessToken) as TUser;
+
+      dispatch(setUser({ user: user, token: res.data.accessToken }));
+      toast.success("Logged in", { id: toastId, duration: 2000 });
+      router.push("/dashboard");
+    } catch (error) {
+      toast.error("Something went wrong", { id: toastId, duration: 2000 });
+    }
   });
 
   return (
@@ -98,7 +115,7 @@ const LoginPage = () => {
 
               {isLoading ? (
                 <button
-                  className="btn btn-primary w-full text-white mt-6 bg-gradient-to-tr from-blue-500 to-purple-600"
+                  className="py-2.5 rounded-md font-semibold w-full text-white mt-6 bg-gradient-to-tr from-blue-500 to-purple-600"
                   disabled
                 >
                   Loading...
